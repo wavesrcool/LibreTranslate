@@ -11,7 +11,7 @@ DEFAULT_DB_PATH = DEFARGS['API_KEYS_DB_PATH']
 class Database:
     def __init__(self, db_path=DEFAULT_DB_PATH, max_cache_len=1000, max_cache_age=30):
         db_dir = os.path.dirname(db_path)
-        if not db_dir == "" and not os.path.exists(db_dir):
+        if db_dir != "" and not os.path.exists(db_dir):
             os.makedirs(db_dir)
         self.db_path = db_path
         self.cache = ExpiringDict(max_len=max_cache_len, max_age_seconds=max_cache_age)
@@ -80,7 +80,7 @@ class RemoteDatabase:
                 r = requests.post(self.url, data={'api_key': api_key})
                 res = r.json()
             except Exception as e:
-                print("Cannot authenticate API key: " + str(e))
+                print(f"Cannot authenticate API key: {str(e)}")
                 return None
 
             if res.get('error', None) is None:

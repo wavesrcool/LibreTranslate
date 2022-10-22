@@ -39,13 +39,11 @@ def get_upload_dir():
 
 
 def get_req_api_key():
-    if request.is_json:
-        json = get_json_dict(request)
-        ak = json.get("api_key")
-    else:
-        ak = request.values.get("api_key")
+    if not request.is_json:
+        return request.values.get("api_key")
 
-    return ak
+    json = get_json_dict(request)
+    return json.get("api_key")
 
 
 def get_json_dict(request):
@@ -56,21 +54,18 @@ def get_json_dict(request):
 
 
 def get_remote_address():
-    if request.headers.getlist("X-Forwarded-For"):
-        ip = request.headers.getlist("X-Forwarded-For")[0].split(",")[0]
-    else:
-        ip = request.remote_addr or "127.0.0.1"
-
-    return ip
+    return (
+        request.headers.getlist("X-Forwarded-For")[0].split(",")[0]
+        if request.headers.getlist("X-Forwarded-For")
+        else request.remote_addr or "127.0.0.1"
+    )
 
 
 def get_req_limits(default_limit, api_keys_db, multiplier=1):
     req_limit = default_limit
 
     if api_keys_db:
-        api_key = get_req_api_key()
-
-        if api_key:
+        if api_key := get_req_api_key():
             db_req_limit = api_keys_db.lookup(api_key)
             if db_req_limit is not None:
                 req_limit = db_req_limit * multiplier
@@ -84,10 +79,10 @@ def get_routes_limits(default_req_limit, daily_req_limit, api_keys_db):
         default_req_limit = 9999999999999
 
     def minute_limits():
-        return "%s per minute" % get_req_limits(default_req_limit, api_keys_db)
+        return f"{get_req_limits(default_req_limit, api_keys_db)} per minute"
 
     def daily_limits():
-        return "%s per day" % get_req_limits(daily_req_limit, api_keys_db, 1440)
+        return f"{get_req_limits(daily_req_limit, api_keys_db, 1440)} per day"
 
     res = [minute_limits]
 
