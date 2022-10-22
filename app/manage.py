@@ -39,18 +39,16 @@ def manage():
 
     if args.command == "keys":
         if not os.path.exists(args.api_keys_db_path):
-            print("No such database: %s" % args.api_keys_db_path)
+            print(f"No such database: {args.api_keys_db_path}")
             exit(1)
         db = Database(args.api_keys_db_path)
         if args.sub_command is None:
-            # Print keys
-            keys = db.all()
-            if not keys:
-                print("There are no API keys")
-            else:
+            if keys := db.all():
                 for item in keys:
                     print("%s: %s" % item)
 
+            else:
+                print("There are no API keys")
         elif args.sub_command == "add":
             print(db.add(args.req_limit, args.key)[0])
         elif args.sub_command == "remove":

@@ -19,9 +19,7 @@ def _get_value_bool(name, default_value):
     env_value = os.environ.get(name)
     if env_value in ['FALSE', 'False', 'false', '0']:
         return False
-    if env_value in ['TRUE', 'True', 'true', '1']:
-        return True
-    return default_value
+    return True if env_value in ['TRUE', 'True', 'true', '1'] else default_value
 
 
 def _get_value(name, default_value, value_type):

@@ -154,22 +154,21 @@ def main():
 
     if sys.argv[0] == '--wsgi':
         return app
+    if args.debug:
+        app.run(host=args.host, port=args.port)
     else:
-        if args.debug:
-            app.run(host=args.host, port=args.port)
-        else:
-            from waitress import serve
+        from waitress import serve
 
-            url_scheme = "https" if args.ssl else "http"
-            print("Running on %s://%s:%s" % (url_scheme, args.host, args.port))
+        url_scheme = "https" if args.ssl else "http"
+        print(f"Running on {url_scheme}://{args.host}:{args.port}")
 
-            serve(
-                app,
-                host=args.host,
-                port=args.port,
-                url_scheme=url_scheme,
-                threads=args.threads
-            )
+        serve(
+            app,
+            host=args.host,
+            port=args.port,
+            url_scheme=url_scheme,
+            threads=args.threads
+        )
 
 
 if __name__ == "__main__":

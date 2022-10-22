@@ -121,10 +121,10 @@ def __transliterate_line(transliterator, line_text):
     for orig_word in line_text.split(" "):
         # remove any punctuation on the right side
         r_word = orig_word.rstrip(string.punctuation)
-        r_diff = set(char for char in orig_word) - set(char for char in r_word)
+        r_diff = set(orig_word) - set(r_word)
         # and on the left side
         l_word = orig_word.lstrip(string.punctuation)
-        l_diff = set(char for char in orig_word) - set(char for char in l_word)
+        l_diff = set(orig_word) - set(l_word)
 
         # the actual transliteration of the word
         t_word = transliterator.transliterate(orig_word.strip(string.punctuation))
@@ -151,14 +151,11 @@ def transliterate(text, target_lang="en"):
     # initialize the transliterator from polyglot
     transliterator = Transliterator(target_lang=target_lang)
 
-    # check for multiline string
-    if "\n" in text:
-        lines = []
-        # process each line separate
-        for line in text.split("\n"):
-            lines.append(__transliterate_line(transliterator, line))
-
-        # rejoin multiline string
-        return "\n".join(lines)
-    else:
+    if "\n" not in text:
         return __transliterate_line(transliterator, text)
+    lines = [
+        __transliterate_line(transliterator, line) for line in text.split("\n")
+    ]
+
+    # rejoin multiline string
+    return "\n".join(lines)
